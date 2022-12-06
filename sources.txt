@@ -1,0 +1,1 @@
+Rss-feed,https://rss.nytimes.com/services/xml/rss/nyt/World.xml;Atom-feed,https://www.wxwidgets.org/atom.xml;Blogger-feed,http://feeds.feedburner.com/PythonInsider
