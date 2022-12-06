@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+gitpath=$(pwd)
+execname="rss"
+
+if [[ ! -e $HOME/bin ]]; then
+ echo "install.sh: directory $HOME/bin does not exist, creating"
+ mkdir $HOME/bin
+fi
+
+execpath=$HOME/bin/$execname
+
+rm $execpath > /dev/null 2>&1
+touch $execpath
+chmod u+x $execpath
+
+echo -e "#!/usr/bin/env bash" >> $execpath
+echo -e "cd $gitpath" >> $execpath
+echo -e "source env/bin/activate" >> $execpath
+echo -e "python arr.py" >> $execpath

@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Create a new virtual environment for python.
+# Usage: mkvenv [name_of_myvenv]
+# If no argument is given this  defaults to creating virtual environment
+# named "venv"
+
+
+if [[ "$#" -gt 1 ]]; then
+ echo "mkvenv: Illegal number of parameters"
+ exit 1
+elif [[ "$#" -eq 0 ]]; then
+ newdir="venv"
+else
+ var="$1"
+ isdash=${var::1}
+ if  [[ $isdash == "-" ]]; then
+  echo "Usage: mkvenv [name_of_myvenv]"
+  echo "If no argument is given this  defaults to creating virtual environment"
+  echo 'named "venv"'
+  exit 1
+ else
+  newdir=$1
+ fi
+fi
+
+if [[ -e ${newdir} ]]; then
+ echo "mkvenv: directory ${newdir} already exist"
+ exit 1
+fi
+
+# First: update pip and setuptools and then install wheel
+python3 -m venv ${newdir} && \
+
+. ${newdir}/bin/activate && \
+
+pip install -U pip && \
+pip install -U setuptools && \
+pip install wheel  && \
+pip install html2text
