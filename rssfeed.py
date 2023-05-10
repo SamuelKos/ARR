@@ -40,7 +40,7 @@ class RssFeed:
 
 
 	def add_source(self, key, addr):
-		'''	Add new feed to sources: key is name for dropdown-menu and 
+		'''	Add new feed to sources: key is name for dropdown-menu and
 			addr is its URL-address.
 		'''
 		self._sources[key] = addr
@@ -71,7 +71,7 @@ class RssFeed:
 		''' Key can be the name of the feed or index-number of the feed.
 		'''
 		if isinstance(key, str):
-			self._source = key    
+			self._source = key
 		else:
 			self._source = sorted(self._sources.keys())[key]
 		

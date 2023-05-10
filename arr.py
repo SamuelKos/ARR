@@ -65,14 +65,14 @@ class MyHTMLParser(html.parser.HTMLParser):
 		
 		Every link-name and link-address is saved in a tuple.
 		Tuples are stored in a list: self.addresses. These tuples
-		are used in Browser-class: in make_page() and in tag_link() 
+		are used in Browser-class: in make_page() and in tag_link()
 		to make hyper-links for tkinter Text-widget.
 		
 		Certain types of links are ignored to shorten the list.
 	'''
 	
 	
-	def __init__(self):        
+	def __init__(self):
 		super().__init__()
 		self.flag = False
 		self.ignore = [
@@ -90,7 +90,7 @@ class MyHTMLParser(html.parser.HTMLParser):
 						'mailto:?'
 					]
 		self.address = ""
-		self.linkname = ""        
+		self.linkname = ""
 		self.addresses = list()
 		self.domain = ""
 	
@@ -123,11 +123,11 @@ class MyHTMLParser(html.parser.HTMLParser):
 					else:
 						# it is full URL, including current domain,
 						# so do nothing:
-						pass                        
+						pass
 
 					self.address = tmp
 					self.flag = True
-					break          
+					break
 	
 
 	def chk_ignores(self, spam):
@@ -142,7 +142,7 @@ class MyHTMLParser(html.parser.HTMLParser):
 			self.linkname = data
 			
 			
-	def handle_endtag(self, tag):    
+	def handle_endtag(self, tag):
 		if tag == 'a' and self.flag:
 			self.linkname = " ".join(self.linkname.split())
 			self.addresses.append((self.linkname, self.address))
@@ -240,7 +240,7 @@ class Browser(tkinter.Toplevel):
 		########### Layout Begin ############################################
 		self.framtop = tkinter.Frame(self)
 		self.framtop.pack(side=tkinter.TOP, fill=tkinter.X)
-		self.frambottom = tkinter.Frame(self)		
+		self.frambottom = tkinter.Frame(self)
 		self.frambottom.pack(side=tkinter.TOP, fill=tkinter.BOTH)
 		
 		self.entry = tkinter.Entry(self.framtop, font=self.font2)
@@ -302,7 +302,7 @@ class Browser(tkinter.Toplevel):
 		self.text1.bind("<Down>", self.arrow_down_override)
 		self.text1.bind("<space>", self.space_override)
 		self.text2.bind("<Enter>",	self.enter_text2)
-		self.text2.bind("<Leave>",	self.leave_text2)            
+		self.text2.bind("<Leave>",	self.leave_text2)
 		self.text1.pack(side=tkinter.BOTTOM,  expand=True, fill=tkinter.BOTH)
 		self.text2.pack(side=tkinter.BOTTOM,  expand=True, fill=tkinter.BOTH)
 				
@@ -516,7 +516,7 @@ class Browser(tkinter.Toplevel):
 	
 	def rclick(self, event=None):
 		'''	When hyperlink in text2 is clicked with mouse right.
-		''' 
+		'''
 		i = int(self.text2.tag_names(tkinter.CURRENT)[0].split("-")[1])
 		addr = self.parser.addresses[i][1]
 		
@@ -614,8 +614,8 @@ class Browser(tkinter.Toplevel):
 		return 'break'
 		
 	
-	def color_choose(self, event=None):		
-		self.color = changecolor.ColorChooser([self.text1, self.text2])				
+	def color_choose(self, event=None):
+		self.color = changecolor.ColorChooser([self.text1, self.text2])
 		return 'break'
 		
 		
@@ -699,7 +699,7 @@ so copying a block of lines ignores all those lines also separately.'''
 		
 	def make_titlepage(self, event=None):
 		'''	Fetch selected feed with rssfeed (titles and links).
-			Then make title-page with hyperlinks. 
+			Then make title-page with hyperlinks.
 		'''
 		self.state = 'title'
 		source = self.var.get()
@@ -727,7 +727,7 @@ so copying a block of lines ignores all those lines also separately.'''
 			self.update_idletasks()
 			raise
 			
-		t = self.u._title_of_feed 
+		t = self.u._title_of_feed
 		self.title( f'{t}: {len(self.history)}' )
 		count = len(self.u._titles)
 		self.flag_rss = True
@@ -757,7 +757,7 @@ so copying a block of lines ignores all those lines also separately.'''
 				lambda event, arg=tagname: self.leave(arg, event))
 			
 			self.text1.insert(tkinter.INSERT, str(i+1), tagname)
-			tmp += ':\t%s' % title	
+			tmp += ':\t%s' % title
 			tmp += '\n\n'
 			self.text1.insert(tkinter.END, tmp)
 		
@@ -807,7 +807,7 @@ so copying a block of lines ignores all those lines also separately.'''
 		addresses = list()
 
 		for line in tmp:
-			if 'http' in line: 
+			if 'http' in line:
 				addresses.append(line.strip())
 			else:
 				if len(line.strip()) > 0:
@@ -887,7 +887,7 @@ so copying a block of lines ignores all those lines also separately.'''
 				self.make_page(link=self.history[-1][1])
 		else:
 			self.bell()
-			self.flag_back = False 
+			self.flag_back = False
 
 
 	def enter_text2(self, event):
@@ -900,8 +900,8 @@ so copying a block of lines ignores all those lines also separately.'''
 		self.bind("<Button-3>", lambda event: self.raise_popup(event))
 	
 
-	def wipe(self):     
-		self.entry.delete(0,tkinter.END)    
+	def wipe(self):
+		self.entry.delete(0,tkinter.END)
 		self.parser.addresses.clear()
 		self.text1.config(state='normal')
 		self.text2.config(state='normal')
@@ -940,7 +940,7 @@ so copying a block of lines ignores all those lines also separately.'''
 	def make_page(self, link=None, title_index=None):
 		self.state = 'page'
 
-		# address is not from hyperlink: 
+		# address is not from hyperlink:
 		if link == None or self.input:
 			if link == None:
 				link = self.entry.get().strip()
@@ -962,7 +962,7 @@ so copying a block of lines ignores all those lines also separately.'''
 			self.parser.domain = re.sub('(//[^/]*)/.*', r'\1', link)
 
 		# final check
-		if self.parser.domain.endswith('/'):        
+		if self.parser.domain.endswith('/'):
 			self.parser.domain = self.parser.domain[:-1]
 
 		if not self.flag_back:
@@ -972,7 +972,7 @@ so copying a block of lines ignores all those lines also separately.'''
 				tmp = self.u._titles[title_index].split()
 				
 				if len(tmp) > 3:
-					pattern = ' '.join(tmp[:4])	
+					pattern = ' '.join(tmp[:4])
 				elif len(tmp) > 0:
 					pattern = ' '.join(tmp[:len(tmp)])
 				else:
@@ -1005,7 +1005,7 @@ so copying a block of lines ignores all those lines also separately.'''
 		else:
 			self.title('ARR: %d' % len(self.history))
 			res = res.read().decode('utf-8')
-			self.parser.feed(res)	# HTMLParser parses links               
+			self.parser.feed(res)	# HTMLParser parses links
 			s = self.h.handle(res)	# html2text parses page
 			
 ############# Modify page Begin
@@ -1033,20 +1033,20 @@ so copying a block of lines ignores all those lines also separately.'''
 				tagname = "hyper-%s" % i
 				self.text2.tag_config(tagname)
 				
-				self.text2.tag_bind(tagname, "<ButtonRelease-1>", 
+				self.text2.tag_bind(tagname, "<ButtonRelease-1>",
 					lambda event: self.lclick(event))
 					
-				self.text2.tag_bind(tagname, "<ButtonRelease-3>", 
+				self.text2.tag_bind(tagname, "<ButtonRelease-3>",
 					lambda event: self.rclick(event))
 				
-				self.text2.tag_bind(tagname, "<Enter>", 
+				self.text2.tag_bind(tagname, "<Enter>",
 					lambda event, arg=tagname: self.enter(arg, event))
 				
-				self.text2.tag_bind(tagname, "<Leave>", 
+				self.text2.tag_bind(tagname, "<Leave>",
 					lambda event, arg=tagname: self.leave(arg, event))
 				
 				name = item[0] +" "+  item[1] +"\n"
-				self.text2.insert(tkinter.INSERT, name, tagname)            
+				self.text2.insert(tkinter.INSERT, name, tagname)
 			
 			if self.history[-1][2]:
 				# try to get linenum of title in page. Pattern is string
