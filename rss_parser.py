@@ -26,7 +26,7 @@ class Parser:
 
 	def parse(self, link):
 		'''	link is URL-address to RSS-feed written in XML.
-			Returns tuple containing title of feed and two list: 
+			Returns tuple containing title of feed and two list:
 			news-titles and links to news-page.
 		'''
 		req = urllib.request.Request(link)
@@ -41,18 +41,18 @@ class Parser:
 		
 		if self.rss_types['Feedburner'] in data_xml:
 			ctag = 'entry'
-			patt_for_feedtitle = '<feed.*?<title.*?>(.*?)</title>'
+			patt_for_feedtitle = '<feed.*?<title.*?>(?:<\\!\\[CDATA\[)?(.*?)(?:\\]\\]>)?</title>'
 			patt_for_link = '''<entry>.*?</content>.*?<link.*?type=['"]text/html['"].*? href\\s*=.*?(h.*?)['"].*?/>.*?</entry>'''
 		
 		elif self.rss_types['RSS'] in data_xml:
 			ctag = 'item'
-			patt_for_feedtitle = '<channel>.*?<title.*?>(.*?)</title>'
+			patt_for_feedtitle = '<channel>.*?<title.*?>(?:<\\!\\[CDATA\[)?(.*?)(?:\\]\\]>)?</title>'
 			patt_for_link = '<item>.*?<link.*?>(?:<\\!\\[CDATA\[)?(.*?)(?:\\]\\]>)?</link>.*?</item>'
 			
 		
 		elif self.rss_types['Atom'] in data_xml:
 			ctag = 'entry'
-			patt_for_feedtitle = '<feed.*?<title.*?>(.*?)</title>'
+			patt_for_feedtitle = '<feed.*?<title.*?>(?:<\\!\\[CDATA\[)?(.*?)(?:\\]\\]>)?</title>'
 			patt_for_link = '''<entry>.*?<link.*?href\\s*=.*?(h.*?)['"]*/>.*?</entry>'''
 			
 		else:
