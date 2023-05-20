@@ -25,7 +25,7 @@ owned by [Aaron Swartz](https://en.wikipedia.org/wiki/Aaron_Swartz),
 who was involved in RSS-format developing and more. Check it out!
  
 
-# Running 
+# Running
 
 ```console
 foo@bar:~$ rss

@@ -66,7 +66,7 @@ class FontChooser(tkinter.Toplevel):
 		self.scrollbar.pack(side='left', fill='y')
 		self.scrollbar.config(width=30, elementborderwidth=4, command=self.lb.yview)
 		
-		# With spinbox we set font size: 
+		# With spinbox we set font size:
 		self.sb = tkinter.Spinbox(self, font=('TkDefaultFont', 10), from_=self.min, to=self.max, increment=2, width=3, command=self.change_font)
 		self.sb.pack(pady=10)
 		
