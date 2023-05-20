@@ -9,7 +9,6 @@ import urllib.request
 import html.parser
 import webbrowser
 import pathlib
-import random
 import json
 import re
 
@@ -50,14 +49,14 @@ HELPTEXT = '''
   ctrl-W:	Save configuration
 
   ctrl-mouseleft: Open link in default browser
+  space over rss-link: Open link in default browser
   Alt-i:	  Edit ignored lines
 
   At bottom-pane, when clicked address with mouse-right: copy link
 	
   When editing sources, leave an empty line after last line and then
   write name for the feed to be in the dropdown-menu and then add
-  URL-address of the RSS-feed to next line.
-		'''
+  URL-address of the RSS-feed to next line.'''
 		
 
 class MyHTMLParser(html.parser.HTMLParser):
@@ -191,9 +190,9 @@ class Browser(tkinter.Toplevel):
 					'Wide ContentPlaceholder',
 					'Main ContentPlaceholder'
 					]
+		
 			
 		self.fontname = None
-		self.randfont = False
 		self.goodfonts = [
 					'Noto Mono',
 					'Bitstream Vera Sans Mono',
@@ -201,18 +200,7 @@ class Browser(tkinter.Toplevel):
 					'Inconsolata'
 					]
 					
-		self.badfonts = [
-					'Standard Symbols PS',
-					'OpenSymbol',
-					'Noto Color Emoji'
-					'FontAwesome',
-					'Dingbats',
-					'Droid Sans Fallback',
-					'D050000L'
-					]
-		
-		fontfamilies = [f for f in tkinter.font.families() if f not in self.badfonts]
-		random.shuffle(fontfamilies)
+		fontfamilies = [ f for f in tkinter.font.families() ]
 
 		for fontname in self.goodfonts:
 			if fontname in fontfamilies:
@@ -220,11 +208,13 @@ class Browser(tkinter.Toplevel):
 				break
 		
 		if self.fontname == None:
-			self.fontname = fontfamilies[0]
-			self.randfont = True
-			
-		self.font1 = tkinter.font.Font(family=self.fontname, size=12)
-		self.font2 = tkinter.font.Font(family=self.fontname, size=10)
+			self.font1 = tkinter.font.Font(family='TkDefaulFont', size=12)
+			self.font2 = tkinter.font.Font(family='TkDefaulFont', size=10)
+		
+		else:
+			self.font1 = tkinter.font.Font(family=self.fontname, size=12)
+			self.font2 = tkinter.font.Font(family=self.fontname, size=10)
+		
 		
 		if ICONPATH:
 			try:
@@ -344,11 +334,8 @@ class Browser(tkinter.Toplevel):
 			print('\nCould not load configuration file %s' % CONFPATH)
 		else:
 			self.load_config(f)
-			self.randfont = False
 			f.close()
 		
-		if self.randfont == True:
-			print(f'WARNING: RANDOM FONT NAMED "{self.fontname.upper()}" IN USE. Select a better font with: ctrl-p')
 		
 		self.text1.focus_set()
 			
@@ -360,8 +347,28 @@ class Browser(tkinter.Toplevel):
 	def space_override(self, event=None):
 
 		if self.state  in [ 'page', 'title' ]:
-			self.text1.yview_scroll(21, tkinter.UNITS)
-			return 'break'
+			
+			if self.flag_rss:
+				# Pressed space over rss-link
+				w = self.text1
+				tag = w.tag_names( tkinter.CURRENT )
+				#print(tag)
+				if len(tag) > 0:
+					for item in tag:
+						#print(item)
+						if 'hyper' in item:
+							i = int( item.split("-")[1] )
+							addr = self.parser.addresses[i][1]
+							webbrowser.open(addr)
+							return 'break'
+						
+				self.text1.yview_scroll(21, tkinter.UNITS)
+				return 'break'
+			
+			else:
+				self.text1.yview_scroll(21, tkinter.UNITS)
+				return 'break'
+			
 		else:
 			return
 
@@ -463,8 +470,16 @@ class Browser(tkinter.Toplevel):
 		
 		self.fgcolor = data['fgcolor']
 		self.bgcolor = data['bgcolor']
-		self.font1.config(**data['font1'])
-		self.font2.config(**data['font2'])
+		
+		fontfamilies = [f for f in tkinter.font.families()]
+		font = data['font1']['family']
+		
+		if font not in fontfamilies:
+			print(f'Font {font.upper()} does not exist.')
+		
+		else:
+			self.font1.config(**data['font1'])
+			self.font2.config(**data['font2'])
 		
 		self.scrollbar_width 	= data['scrollbar_width']
 		self.elementborderwidth	= data['elementborderwidth']
