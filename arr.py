@@ -4,6 +4,11 @@
 # from flags to states if possible
 # check if manually insert invalid url
 
+
+## tab to optionmenu ,space to open, up down move, return select
+## n = self.nametowidget(self.optionmenu.menuname)
+## n.invoke(n.index('active'))
+
 # from standard library
 import urllib.request
 import html.parser
@@ -47,10 +52,9 @@ HELPTEXT = '''
   ctrl-p:	Font chooser
   ctrl-s:	Color chooser
   ctrl-W:	Save configuration
+  Alt-i:	Edit ignored lines
 
   ctrl-mouseleft: Open link in default browser
-  space over rss-link: Open link in default browser
-  Alt-i:	  Edit ignored lines
 
   At bottom-pane, when clicked address with mouse-right: copy link
 	
@@ -244,7 +248,7 @@ class Browser(tkinter.Toplevel):
 		self.optionmenu = tkinter.OptionMenu(self.framtop, self.var, *self.sources, command=self.make_titlepage)
 		
 		# set font of dropdown button:
-		self.optionmenu.config(font=self.font2)
+		self.optionmenu.config(font=self.font2, takefocus=1)
 		
 		# set font of dropdown items:
 		menu = self.nametowidget(self.optionmenu.menuname)
@@ -345,29 +349,11 @@ class Browser(tkinter.Toplevel):
 
 	
 	def space_override(self, event=None):
-
+		
 		if self.state  in [ 'page', 'title' ]:
 			
-			if self.flag_rss:
-				# Pressed space over rss-link
-				w = self.text1
-				tag = w.tag_names( tkinter.CURRENT )
-				#print(tag)
-				if len(tag) > 0:
-					for item in tag:
-						#print(item)
-						if 'hyper' in item:
-							i = int( item.split("-")[1] )
-							addr = self.parser.addresses[i][1]
-							webbrowser.open(addr)
-							return 'break'
-						
-				self.text1.yview_scroll(21, tkinter.UNITS)
-				return 'break'
-			
-			else:
-				self.text1.yview_scroll(21, tkinter.UNITS)
-				return 'break'
+			self.text1.yview_scroll(21, tkinter.UNITS)
+			return 'break'
 			
 		else:
 			return
