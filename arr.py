@@ -1076,7 +1076,8 @@ so copying a block of lines ignores all those lines also separately.'''
 
 
 if __name__ == '__main__':
-	r = tkinter.Tk().withdraw()
+	r = tkinter.Tk()
+	r.withdraw()
 	b = Browser(r)
 	b.mainloop()
 
