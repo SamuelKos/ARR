@@ -16,7 +16,7 @@ foo@bar:~$ cd ARR
 In Linux:
 foo@bar:~/ARR$ ./make
 In Windows:
-> win_install_rss.bat
+> py win_install_rss.py
 ```
 
 # About Python dependencies:
