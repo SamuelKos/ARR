@@ -6,7 +6,8 @@ class FontChooser(tkinter.Toplevel):
 	def __init__(self, fontlist):
 		'''	fontlist is list of tkinter.font.Font instances
 		'''
-		self.root = tkinter.Tk().withdraw()
+		self.root = tkinter.Tk()
+		self.root.withdraw()
 		super().__init__(self.root)
 		self.fonts = fontlist
 		self.badfonts = [
