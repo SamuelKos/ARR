@@ -2,20 +2,21 @@
 A RSS-Reader with GUI. Tested to work with Debian Bullseye.
 
 # Installing
-debian-packages required: python3-tk python3-venv
+debian-packages required: python3-tk python3-venv. In windows there is no need to install anything.
 
 ```console
 foo@bar:~$ sudo apt install python3-tk python3-venv
 ```
 
-Then clone this repo and run make.
-Git will create directory named ARR under the current working directory.
-Install-script will create launcher-script named rss to home/bin-directory.
- 
+Then clone this repo and:
+
 ```console
 foo@bar:~$ git clone https://github.com/SamuelKos/ARR
 foo@bar:~$ cd ARR
+In Linux:
 foo@bar:~/ARR$ ./make
+In Windows:
+> win_install_rss.bat
 ```
 
 # About Python dependencies:
@@ -32,7 +33,7 @@ foo@bar:~$ rss
 ```
 
 # Uninstalling
-Just remove the ARR -folder and rss-script in home/bin.
+Just remove the ARR -folder and rss-script in home/bin, or from sys.base_prefix if in Windows.
 To remove git and tkinter:
 
 ```console

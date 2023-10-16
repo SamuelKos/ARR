@@ -258,7 +258,9 @@ class Browser(tkinter.Toplevel):
 
 		self.pane = tkinter.PanedWindow(self.frambottom, bg='grey', sashpad=1, orient=tkinter.VERTICAL)
 		self.pane.pack(fill=tkinter.BOTH, expand=True)
- 
+		self.pane.config(height=500)
+
+
 		self.fram1 = tkinter.Frame(self.pane)
 		self.fram2 = tkinter.Frame(self.pane)
 		self.pane.add(self.fram1)
@@ -272,8 +274,8 @@ class Browser(tkinter.Toplevel):
 		self.text2 = tkinter.scrolledtext.ScrolledText(self.fram2,
 			font=self.font2, background=self.bgcolor, foreground=self.fgcolor)
 		
-		self.elementborderwidth = 4
-		self.scrollbar_width = 30
+		self.elementborderwidth = 2
+		self.scrollbar_width = 16
 		self.first_tabstop = 2
 
 		self.text1.vbar.config(elementborderwidth=self.elementborderwidth)
