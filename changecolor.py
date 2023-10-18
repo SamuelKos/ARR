@@ -3,7 +3,8 @@ import tkinter
 
 class ColorChooser(tkinter.Toplevel):
 	def __init__(self, widlist):
-		self.root = tkinter.Tk().withdraw()
+		self.root = tkinter.Tk()
+		self.root.withdraw()
 		super().__init__(self.root)
 		self.widgetlist = list()
 		

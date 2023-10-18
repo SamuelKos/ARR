@@ -15,7 +15,7 @@ if sys.platform[:3] != 'win':
 temp1 = '''@echo off
 
 set folder="venv"
-py -m venv %folder% & %folder%\Scripts\\activate.bat & pip install wheel html2text & %folder%\Scripts\deactivate.bat'''
+py -m venv %folder% & %folder%\\Scripts\\activate.bat & python.exe -m pip install --upgrade pip wheel html2text & %folder%\\Scripts\\deactivate.bat'''
 
 
 temp2 = '''@echo off
@@ -25,7 +25,7 @@ echo @echo off > rss.bat
 echo cd %cd% >> rss.bat'''
 
 temp3 ='''
-echo venv\Scripts\\activate.bat ^& start /B "" "py" "arr.py" >> rss.bat
+echo venv\\Scripts\\activate.bat ^& start /B "" "py" "arr.py" >> rss.bat
 '''
 
 fpath = pathlib.Path(tmp1)
