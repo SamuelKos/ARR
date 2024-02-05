@@ -1,5 +1,7 @@
 # TODO:
 
+# if no conf, show help, open fontchoose
+
 # self.history should be class(if need mutable attrs) or named tuple
 # from flags to states if possible
 # check if manually insert invalid url
@@ -15,6 +17,7 @@ import html.parser
 import webbrowser
 import pathlib
 import json
+import sys
 import re
 
 import tkinter.scrolledtext
@@ -38,6 +41,22 @@ ICONPATH = r'./icons/rssicon.png'
 CONFPATH = r'./rss.cnf'
 RSSLINKS = r'./sources.txt'
 IGNORES  = r'./ignored_lines.txt'
+
+GOODFONTS = [
+			'Courier',
+			'Courier 10 Pitch',
+			'Courier New',
+			'Andale Mono',
+			'Noto Mono',
+			'Bitstream Vera Sans Mono',
+			'Liberation Mono',
+			'DejaVu Sans Mono',
+			'Inconsolata',
+			'Consolas',
+			'Noto Sans Mono'
+			]
+			
+
 HELPTEXT = '''
   left: Previous page
   j:	Search title from page
@@ -176,6 +195,10 @@ class Browser(tkinter.Toplevel):
 		self.helptxt = HELPTEXT
 		self.title('ARR')
 		
+		# other widgets
+		self.to_be_closed = list()
+		
+		
 ##		# White on black
 ##		self.fgcolor = '#D3D7CF'
 ##		self.bgcolor ='#000000'
@@ -186,6 +209,11 @@ class Browser(tkinter.Toplevel):
 		
 		
 		self.pos = '1.0'
+		
+		self.os_type = 'linux'
+		if sys.platform == 'darwin': self.os_type = 'mac_os'
+		elif sys.platform[:3] == 'win': self.os_type = 'windows'
+		
 		
 		try:
 			with open( IGNORES, 'r', encoding='utf-8' ) as f:
@@ -205,27 +233,20 @@ class Browser(tkinter.Toplevel):
 		
 			
 		self.fontname = None
-		self.goodfonts = [
-					'Noto Mono',
-					'Bitstream Vera Sans Mono',
-					'Liberation Mono',
-					'Inconsolata'
-					]
-					
 		fontfamilies = [ f for f in tkinter.font.families() ]
 
-		for fontname in self.goodfonts:
+		for fontname in GOODFONTS:
 			if fontname in fontfamilies:
 				self.fontname = fontname
 				break
 		
 		if self.fontname == None:
-			self.font1 = tkinter.font.Font(family='TkDefaulFont', size=12, name='textfont')
-			self.font2 = tkinter.font.Font(family='TkDefaulFont', size=10, name='menufont')
+			self.textfont = tkinter.font.Font(family='TkDefaulFont', size=12, name='textfont')
+			self.menufont = tkinter.font.Font(family='TkDefaulFont', size=10, name='menufont')
 		
 		else:
-			self.font1 = tkinter.font.Font(family=self.fontname, size=12, name='textfont')
-			self.font2 = tkinter.font.Font(family=self.fontname, size=10, name='menufont')
+			self.textfont = tkinter.font.Font(family=self.fontname, size=12, name='textfont')
+			self.menufont = tkinter.font.Font(family=self.fontname, size=10, name='menufont')
 		
 		
 		if ICONPATH:
@@ -254,10 +275,10 @@ class Browser(tkinter.Toplevel):
 
 
 
-		self.entry = tkinter.Entry(self.framtop, font=self.font2)
+		self.entry = tkinter.Entry(self.framtop, font=self.menufont)
 		self.entry.pack(side=tkinter.LEFT, expand=True, fill=tkinter.X)
 		
-		self.btn_open=tkinter.Button(self.framtop, font=self.font2, text='Open', command=self.make_titlepage)
+		self.btn_open=tkinter.Button(self.framtop, font=self.menufont, text='Open', command=self.make_titlepage)
 		self.btn_open.pack(side=tkinter.LEFT)
 		
 		self.var = tkinter.StringVar()
@@ -265,23 +286,23 @@ class Browser(tkinter.Toplevel):
 		self.optionmenu = tkinter.OptionMenu(self.framtop, self.var, *self.sources, command=self.make_titlepage)
 		
 		# Set font of dropdown button:
-		self.optionmenu.config(font=self.font2, takefocus=1)
+		self.optionmenu.config(font=self.menufont, takefocus=1)
 		
 		# Set font of dropdown items:
 		menu = self.nametowidget(self.optionmenu.menuname)
-		menu.config(font=self.font2)
+		menu.config(font=self.menufont)
 		
 		self.optionmenu.pack(side=tkinter.LEFT)
 
 		
 		
 		self.text1 = tkinter.scrolledtext.ScrolledText(self.fram1,
-			font=self.font1, tabstyle='wordprocessor', background=self.bgcolor,
+			font=self.textfont, tabstyle='wordprocessor', background=self.bgcolor,
 			foreground=self.fgcolor, insertbackground=self.fgcolor,
 			blockcursor=True)
 		
 		self.text2 = tkinter.scrolledtext.ScrolledText(self.fram2,
-			font=self.font2, background=self.bgcolor, foreground=self.fgcolor)
+			font=self.menufont, background=self.bgcolor, foreground=self.fgcolor)
 		
 		self.elementborderwidth = 2
 		self.scrollbar_width = 16
@@ -333,7 +354,7 @@ class Browser(tkinter.Toplevel):
 		self.bind("<Button-3>",			lambda event: self.raise_popup(event))
 		
 		self.popup_whohasfocus = None
-		self.popup = tkinter.Menu(self, font=self.font2, tearoff=0)
+		self.popup = tkinter.Menu(self, font=self.menufont, tearoff=0)
 		self.popup.bind("<FocusOut>", self.popup_focusOut)
 		# so that popup would go away when clicked somewhere else
 		
@@ -381,6 +402,16 @@ class Browser(tkinter.Toplevel):
 	
 	def do_nothing_without_bell(self, event=None):
 		return 'break'
+		
+		
+	def quit_me(self, event=None):
+		self.save_config()
+		
+		for widget in self.to_be_closed:
+			widget.destroy()
+		
+		self.quit()
+		self.destroy()
 	
 	
 	def space_override(self, event=None):
@@ -468,10 +499,33 @@ class Browser(tkinter.Toplevel):
 			print('\nCould not save configuration')
 		else:
 			data = dict()
+			
+			# Replace possible Tkdefaulfont as family with real name,
+			# if not mac_os, because tkinter.font.Font does not recognise
+			# this: .APPLESYSTEMUIFONT
+	
+			if self.os_type == 'mac_os':
+			
+				if self.textfont.cget('family') == 'TkDefaulFont':
+					data['textfont'] = self.textfont.config()
+					
+				else:
+					data['textfont'] = self.textfont.actual()
+					
+				if self.menufont.cget('family') == 'TkDefaulFont':
+					data['menufont'] = self.menufont.config()
+					
+				else:
+					data['menufont'] = self.menufont.actual()
+					
+			else:
+				data['textfont'] = self.textfont.actual()
+				data['menufont'] = self.menufont.actual()
+	
+
+
 			data['fgcolor'] = self.text1.cget('foreground')
 			data['bgcolor'] = self.text1.cget('background')
-			data['font1'] = self.font1.config()
-			data['font2'] = self.font2.config()
 			data['scrollbar_width'] = self.scrollbar_width
 			data['elementborderwidth'] = self.elementborderwidth
 			integer, decimal = str(float(self.first_tabstop)).split('.')
@@ -484,23 +538,67 @@ class Browser(tkinter.Toplevel):
 			f.close()
 			self.title('Configuration saved')
 
+	
+	def fonts_exists(self, dictionary):
+		
+		res = True
+		fontfamilies = [f for f in tkinter.font.families()]
+		
+		textfont = dictionary['textfont']['family']
+		
+		if textfont not in fontfamilies:
+			print(f'Font {textfont.upper()} does not exist.')
+			textfont = False
+		
+		menufont = dictionary['menufont']['family']
+		
+		if dictionary['menufont']['family'] not in fontfamilies:
+			print(f'Font {menufont.upper()} does not exist.')
+			menufont = False
+			
+		return textfont, menufont
+	
 			
 	def load_config(self, fileobject):
 		string_representation = fileobject.read()
 		data = json.loads(string_representation)
 		
+		
+		# Set Font Begin ##############################
+		
+		textfont, menufont = self.fonts_exists(data)
+
+		# Both missing:
+		if not textfont and not menufont:
+			fontname = None
+
+			fontfamilies = [f for f in tkinter.font.families()]
+
+			for font in GOODFONTS:
+				if font in fontfamilies:
+					fontname = font
+					break
+
+			if not fontname:
+				fontname = 'TkDefaulFont'
+
+			data['textfont']['family'] = fontname
+			data['menufont']['family'] = fontname
+
+		# One missing, copy existing:
+		elif bool(textfont) ^ bool(menufont):
+			if textfont:
+				data['menufont']['family'] = textfont
+			else:
+				data['textfont']['family'] = menufont
+
+
+		self.textfont.config(**data['textfont'])
+		self.menufont.config(**data['menufont'])
+
+		
 		self.fgcolor = data['fgcolor']
 		self.bgcolor = data['bgcolor']
-		
-		fontfamilies = [f for f in tkinter.font.families()]
-		font = data['font1']['family']
-		
-		if font not in fontfamilies:
-			print(f'Font {font.upper()} does not exist.')
-		
-		else:
-			self.font1.config(**data['font1'])
-			self.font2.config(**data['font2'])
 		
 		self.scrollbar_width 	= data['scrollbar_width']
 		self.elementborderwidth	= data['elementborderwidth']
@@ -645,7 +743,7 @@ class Browser(tkinter.Toplevel):
 		
 		
 	def font_choose(self, event=None):
-##		self.choose = changefont.FontChooser([self.font1, self.font2])
+##		self.choose = changefont.FontChooser([self.textfont, self.menufont])
 ##
 ##		return 'break'
 		
@@ -656,26 +754,34 @@ class Browser(tkinter.Toplevel):
 		big = False
 		shortcut = "<Control-p>"
 		
-##		if self.os_type == 'mac_os':
-##			big = True
+		if self.os_type == 'mac_os':
+			big = True
 			
 		
 		fonttop.protocol("WM_DELETE_WINDOW", lambda: ( fonttop.destroy(),
 				self.bind( shortcut, self.font_choose)) )
 		
-		changefont.FontChooser( fonttop, [self.font1, self.font2], big)#, tracefunc=self.update_fonts, os_type=self.os_type )
+		changefont.FontChooser( fonttop, [self.textfont, self.menufont], big, os_type=self.os_type )
 		self.bind( shortcut, self.do_nothing_without_bell)
-		#self.to_be_closed.append(fonttop)
+		
+		self.to_be_closed.append(fonttop)
 	
 		return 'break'
 
 		
-		
-		
-		
-	
 	def color_choose(self, event=None):
 		self.color = changecolor.ColorChooser([self.text1, self.text2])
+		
+		shortcut_color = "<Control-s>"
+
+		
+		self.color.protocol("WM_DELETE_WINDOW", lambda: ( self.color.destroy(),
+				self.bind( shortcut_color, self.color_choose) ))
+				
+		self.bind( shortcut_color, self.do_nothing_without_bell)
+		
+		self.to_be_closed.append(self.color)
+		
 		return 'break'
 		
 		
@@ -696,13 +802,13 @@ so copying a block of lines ignores all those lines also separately.'''
 		self.ignored_lines.sort()
 		ignores = '\n'.join(self.ignored_lines)
 		
-		tmptop.btnsave = tkinter.Button(tmptop, text='Save', font=self.font2)
+		tmptop.btnsave = tkinter.Button(tmptop, text='Save', font=self.menufont)
 		tmptop.btnsave.pack(padx=10, pady=10)
 		
-		tmptop.labelhelp = tkinter.Label(tmptop, text=labeltext, font=self.font2, justify=tkinter.LEFT)
+		tmptop.labelhelp = tkinter.Label(tmptop, text=labeltext, font=self.menufont, justify=tkinter.LEFT)
 		tmptop.labelhelp.pack(padx=10)
 		
-		tmptop.text = tkinter.scrolledtext.ScrolledText(tmptop, font=self.font1, background=self.bgcolor,
+		tmptop.text = tkinter.scrolledtext.ScrolledText(tmptop, font=self.textfont, background=self.bgcolor,
 			foreground=self.fgcolor, insertbackground=self.fgcolor, blockcursor=True, wrap=tkinter.NONE)
 		
 		tmptop.text.pack(padx=10, pady=10)
@@ -843,9 +949,9 @@ so copying a block of lines ignores all those lines also separately.'''
 		self.btn_open.config(text='Open', command=self.make_titlepage)
 		
 		self.optionmenu = tkinter.OptionMenu(self.framtop, self.var, *self.sources, command=self.make_titlepage)
-		self.optionmenu.config(font=self.font2)
+		self.optionmenu.config(font=self.menufont)
 		menu = self.nametowidget(self.optionmenu.menuname)
-		menu.config(font=self.font2)
+		menu.config(font=self.menufont)
 		self.optionmenu.pack(side=tkinter.LEFT)
 		
 		self.entry.config(state='normal')
@@ -1127,11 +1233,6 @@ so copying a block of lines ignores all those lines also separately.'''
 		self.text1.config(state='disabled')
 		self.text2.config(state='disabled')
 
-
-	def quit_me(self, event=None):
-		self.save_config()
-		self.quit()
-		self.destroy()
 
 
 if __name__ == '__main__':
