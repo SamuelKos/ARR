@@ -153,12 +153,12 @@ class MyHTMLParser(html.parser.HTMLParser):
 
 
 class Browser(tkinter.Toplevel):
-	'''	RSS-browser made with tkinter PanedWindow and ScrolledText -widgets
-		to name a few. To run it:
+	'''	RSS-browser made with tkinter. To run it:
 		
 		import arr
 		from tkinter import Tk
-		root=Tk().withdraw()
+		root=Tk()
+		root.withdraw()
 		u=arr.Browser(root)
 
 	'''
@@ -175,8 +175,16 @@ class Browser(tkinter.Toplevel):
 		self.state = None
 		self.helptxt = HELPTEXT
 		self.title('ARR')
-		self.fgcolor = '#D3D7CF'
-		self.bgcolor ='#000000'
+		
+##		# White on black
+##		self.fgcolor = '#D3D7CF'
+##		self.bgcolor ='#000000'
+		
+		# Yellow on blue
+		self.fgcolor = '#D3D751'
+		self.bgcolor = '#0000D9'
+		
+		
 		self.pos = '1.0'
 		
 		try:
@@ -212,12 +220,12 @@ class Browser(tkinter.Toplevel):
 				break
 		
 		if self.fontname == None:
-			self.font1 = tkinter.font.Font(family='TkDefaulFont', size=12)
-			self.font2 = tkinter.font.Font(family='TkDefaulFont', size=10)
+			self.font1 = tkinter.font.Font(family='TkDefaulFont', size=12, name='textfont')
+			self.font2 = tkinter.font.Font(family='TkDefaulFont', size=10, name='menufont')
 		
 		else:
-			self.font1 = tkinter.font.Font(family=self.fontname, size=12)
-			self.font2 = tkinter.font.Font(family=self.fontname, size=10)
+			self.font1 = tkinter.font.Font(family=self.fontname, size=12, name='textfont')
+			self.font2 = tkinter.font.Font(family=self.fontname, size=10, name='menufont')
 		
 		
 		if ICONPATH:
@@ -231,25 +239,21 @@ class Browser(tkinter.Toplevel):
 		self.u = rssfeed.RssFeed(RSSLINKS)
 		self.sources = list(self.u._sources.keys())
 		
+		
 		########### Layout Begin ############################################
 		self.pane = tkinter.PanedWindow(self, bg='grey', sashpad=1, orient=tkinter.VERTICAL)
 		self.pane.pack(expand=True, fill=tkinter.BOTH)
-		#self.pane.config(height=500)
-
-		
 		
 		self.framtop = tkinter.Frame(self)
-		#self.frambottom = tkinter.Frame(self)
 		self.fram1 = tkinter.Frame(self)
 		self.fram2 = tkinter.Frame(self)
 		
 		self.pane.add(self.framtop)
-		#self.pane.add(self.frambottom)
 		self.pane.add(self.fram1)
 		self.pane.add(self.fram2)
 
 
-		
+
 		self.entry = tkinter.Entry(self.framtop, font=self.font2)
 		self.entry.pack(side=tkinter.LEFT, expand=True, fill=tkinter.X)
 		
@@ -260,17 +264,16 @@ class Browser(tkinter.Toplevel):
 		self.var.set(self.sources[0])
 		self.optionmenu = tkinter.OptionMenu(self.framtop, self.var, *self.sources, command=self.make_titlepage)
 		
-		# set font of dropdown button:
+		# Set font of dropdown button:
 		self.optionmenu.config(font=self.font2, takefocus=1)
 		
-		# set font of dropdown items:
+		# Set font of dropdown items:
 		menu = self.nametowidget(self.optionmenu.menuname)
 		menu.config(font=self.font2)
 		
 		self.optionmenu.pack(side=tkinter.LEFT)
 
 		
-
 		
 		self.text1 = tkinter.scrolledtext.ScrolledText(self.fram1,
 			font=self.font1, tabstyle='wordprocessor', background=self.bgcolor,
@@ -375,6 +378,10 @@ class Browser(tkinter.Toplevel):
 			self.make_page(self.input)
 		######## Init End ###############################################
 
+	
+	def do_nothing_without_bell(self, event=None):
+		return 'break'
+	
 	
 	def space_override(self, event=None):
 		
@@ -638,9 +645,33 @@ class Browser(tkinter.Toplevel):
 		
 		
 	def font_choose(self, event=None):
-		self.choose = changefont.FontChooser([self.font1, self.font2])
+##		self.choose = changefont.FontChooser([self.font1, self.font2])
+##
+##		return 'break'
+		
+		
+		fonttop = tkinter.Toplevel()
+		fonttop.title('Choose Font')
+		
+		big = False
+		shortcut = "<Control-p>"
+		
+##		if self.os_type == 'mac_os':
+##			big = True
 			
+		
+		fonttop.protocol("WM_DELETE_WINDOW", lambda: ( fonttop.destroy(),
+				self.bind( shortcut, self.font_choose)) )
+		
+		changefont.FontChooser( fonttop, [self.font1, self.font2], big)#, tracefunc=self.update_fonts, os_type=self.os_type )
+		self.bind( shortcut, self.do_nothing_without_bell)
+		#self.to_be_closed.append(fonttop)
+	
 		return 'break'
+
+		
+		
+		
 		
 	
 	def color_choose(self, event=None):
