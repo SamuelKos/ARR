@@ -1,7 +1,5 @@
 # TODO:
 
-# if no conf, show help, open fontchoose
-
 # self.history should be class(if need mutable attrs) or named tuple
 # from flags to states if possible
 # check if manually insert invalid url
@@ -363,9 +361,10 @@ class Browser(tkinter.Toplevel):
 		self.popup.add_command(label="        help", command=self.help)
 		
 		# Try to apply saved configurations:
+		noconf = False
 		try:
 			f = open(CONFPATH)
-		except FileNotFoundError: pass
+		except FileNotFoundError: noconf = True
 		except OSError as e:
 			print(e.__str__())
 			print('\nCould not load configuration file %s' % CONFPATH)
@@ -391,12 +390,15 @@ class Browser(tkinter.Toplevel):
 			self.geometry('%sx%s+0+0' % (winwidth, target_height))
 		
 		
-		
-		self.text1.focus_set()
-		
-			
-		if self.input:
-			self.make_page(self.input)
+		if noconf:
+			self.help()
+			self.font_choose()
+		else:
+			self.text1.focus_set()
+				
+			if self.input:
+				self.make_page(self.input)
+
 		######## Init End ###############################################
 
 	
