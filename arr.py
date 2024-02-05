@@ -197,13 +197,13 @@ class Browser(tkinter.Toplevel):
 		self.to_be_closed = list()
 		
 		
-##		# White on black
-##		self.fgcolor = '#D3D7CF'
-##		self.bgcolor ='#000000'
+		# White on black
+		self.fgcolor = '#D3D7CF'
+		self.bgcolor ='#000000'
 		
-		# Yellow on blue
-		self.fgcolor = '#D3D751'
-		self.bgcolor = '#0000D9'
+##		# Yellow on blue
+##		self.fgcolor = '#D3D751'
+##		self.bgcolor = '#0000D9'
 		
 		
 		self.pos = '1.0'
@@ -372,6 +372,14 @@ class Browser(tkinter.Toplevel):
 			self.load_config(f)
 			f.close()
 		
+		
+		tab_width = self.textfont.measure('A')
+		pad_x = tab_width * 2 // 3
+		pad_y = pad_x
+		self.text1.config(pady=pad_y, padx=pad_x)
+		self.text2.config(pady=pad_y, padx=pad_x)
+		
+
 		
 		# Adjust height when necessary (ensure visibility of bottom corner)
 		# so that one can adjust screen size from OS later.
