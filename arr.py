@@ -164,8 +164,8 @@ class Browser(tkinter.Toplevel):
 	'''
 
 	def __init__(self, root, url=None):
-		super().__init__(root, class_='ARR')
-		self.top = root
+		self.top = super().__init__(root, class_='ARR')
+		self.root = root
 		self.protocol("WM_DELETE_WINDOW", self.quit_me)
 		self.user_agent = "https://github.com/SamuelKos/ARR"
 		self.history = []
@@ -232,10 +232,23 @@ class Browser(tkinter.Toplevel):
 		self.sources = list(self.u._sources.keys())
 		
 		########### Layout Begin ############################################
+		self.pane = tkinter.PanedWindow(self, bg='grey', sashpad=1, orient=tkinter.VERTICAL)
+		self.pane.pack(expand=True, fill=tkinter.BOTH)
+		#self.pane.config(height=500)
+
+		
+		
 		self.framtop = tkinter.Frame(self)
-		self.framtop.pack(side=tkinter.TOP, fill=tkinter.X)
-		self.frambottom = tkinter.Frame(self)
-		self.frambottom.pack(side=tkinter.TOP, fill=tkinter.BOTH)
+		#self.frambottom = tkinter.Frame(self)
+		self.fram1 = tkinter.Frame(self)
+		self.fram2 = tkinter.Frame(self)
+		
+		self.pane.add(self.framtop)
+		#self.pane.add(self.frambottom)
+		self.pane.add(self.fram1)
+		self.pane.add(self.fram2)
+
+
 		
 		self.entry = tkinter.Entry(self.framtop, font=self.font2)
 		self.entry.pack(side=tkinter.LEFT, expand=True, fill=tkinter.X)
@@ -256,16 +269,9 @@ class Browser(tkinter.Toplevel):
 		
 		self.optionmenu.pack(side=tkinter.LEFT)
 
-		self.pane = tkinter.PanedWindow(self.frambottom, bg='grey', sashpad=1, orient=tkinter.VERTICAL)
-		self.pane.pack(fill=tkinter.BOTH, expand=True)
-		self.pane.config(height=500)
+		
 
-
-		self.fram1 = tkinter.Frame(self.pane)
-		self.fram2 = tkinter.Frame(self.pane)
-		self.pane.add(self.fram1)
-		self.pane.add(self.fram2)
-
+		
 		self.text1 = tkinter.scrolledtext.ScrolledText(self.fram1,
 			font=self.font1, tabstyle='wordprocessor', background=self.bgcolor,
 			foreground=self.fgcolor, insertbackground=self.fgcolor,
@@ -301,7 +307,8 @@ class Browser(tkinter.Toplevel):
 		self.text2.bind("<Leave>",	self.leave_text2)
 		self.text1.pack(side=tkinter.BOTTOM,  expand=True, fill=tkinter.BOTH)
 		self.text2.pack(side=tkinter.BOTTOM,  expand=True, fill=tkinter.BOTH)
-				
+
+		
 		# links in text2 are parsed with:
 		self.parser = MyHTMLParser()
 		# page in text1 is parsed with:
@@ -343,7 +350,26 @@ class Browser(tkinter.Toplevel):
 			f.close()
 		
 		
+		# Adjust height when necessary (ensure visibility of bottom corner)
+		# so that one can adjust screen size from OS later.
+		self.wait_visibility()
+		
+		winwidth = self.geometry().partition('x')[0]
+		winheight = int(self.geometry().partition('x')[2].partition('+')[0])
+		
+		screenheight = int(self.winfo_screenheight())
+		top_offset = int(self.winfo_y())
+		
+		total_height = winheight + top_offset
+		target_height = int(screenheight * 0.8)
+		
+		if total_height >= target_height:
+			self.geometry('%sx%s+0+0' % (winwidth, target_height))
+		
+		
+		
 		self.text1.focus_set()
+		
 			
 		if self.input:
 			self.make_page(self.input)
@@ -633,7 +659,7 @@ if there is for example a social media block, just copy whole block and
 paste here, empty lines does not matter. Lines are treated separately
 so copying a block of lines ignores all those lines also separately.'''
 
-		tmptop = tkinter.Toplevel()#self.top)
+		tmptop = tkinter.Toplevel()
 		tmptop.title('Edit ignored lines')
 		
 		self.ignored_lines.sort()
@@ -1078,6 +1104,13 @@ so copying a block of lines ignores all those lines also separately.'''
 
 
 if __name__ == '__main__':
+
+##import tkinter, arr
+##r = tkinter.Tk()
+##r.withdraw()
+##b = arr.Browser(r)
+##
+
 	r = tkinter.Tk()
 	r.withdraw()
 	b = Browser(r)
