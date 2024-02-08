@@ -400,6 +400,7 @@ class Browser(tkinter.Toplevel):
 		
 		if noconf:
 			self.help()
+			self.stop_help()
 			self.font_choose()
 		else:
 			self.text1.focus_set()
