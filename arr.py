@@ -373,27 +373,31 @@ class Browser(tkinter.Toplevel):
 			f.close()
 		
 		
+		# Show 5 lines in links
+		lineheight = 5 * self.text2.dlineinfo('1.0')[3]
+		
+		# Set padding
 		tab_width = self.textfont.measure('A')
 		pad_x = tab_width * 2 // 3
 		pad_y = pad_x
 		self.text1.config(pady=pad_y, padx=pad_x)
-		self.text2.config(pady=pad_y, padx=pad_x)
+		self.text2.config(pady=pad_y, padx=pad_x, height=lineheight)
 		
 
 		
 		# Adjust height when necessary (ensure visibility of bottom corner)
 		# so that one can adjust screen size from OS later.
 		self.wait_visibility()
-		
+
 		winwidth = self.geometry().partition('x')[0]
 		winheight = int(self.geometry().partition('x')[2].partition('+')[0])
-		
+
 		screenheight = int(self.winfo_screenheight())
 		top_offset = int(self.winfo_y())
-		
+
 		total_height = winheight + top_offset
 		target_height = int(screenheight * 0.8)
-		
+
 		if total_height >= target_height:
 			self.geometry('%sx%s+0+0' % (winwidth, target_height))
 		
