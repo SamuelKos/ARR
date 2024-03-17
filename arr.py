@@ -4,10 +4,8 @@
 # from flags to states if possible
 # check if manually insert invalid url
 
+# Add version numbering
 
-## tab to optionmenu ,space to open, up down move, return select
-## n = self.nametowidget(self.optionmenu.menuname)
-## n.invoke(n.index('active'))
 
 # from standard library
 import urllib.request
@@ -105,7 +103,6 @@ class MyHTMLParser(html.parser.HTMLParser):
 						'apps.apple',
 						'instagram',
 						'linkedin',
-						'twitter',
 						'whatsapp',
 						'mailto:?'
 					]
@@ -213,6 +210,14 @@ class Browser(tkinter.Toplevel):
 		elif sys.platform[:3] == 'win': self.os_type = 'windows'
 		
 		
+		self.right_mousebutton_num = 3
+		
+		if self.os_type == 'mac_os':
+			self.right_mousebutton_num = 2
+			self.root.createcommand("tk::mac::Quit", self.quit_me)
+		
+		
+		
 		try:
 			with open( IGNORES, 'r', encoding='utf-8' ) as f:
 				self.ignored_lines = f.read().splitlines()
@@ -223,10 +228,7 @@ class Browser(tkinter.Toplevel):
 		
 			self.ignored_lines = [
 					'Facebook',
-					'Twitter',
-					'SiteWide ContentPlaceholder',
-					'Wide ContentPlaceholder',
-					'Main ContentPlaceholder'
+					'Twitter'
 					]
 		
 			
@@ -238,13 +240,17 @@ class Browser(tkinter.Toplevel):
 				self.fontname = fontname
 				break
 		
+		
+		size0, size1 = 12, 10
+		if self.os_type == 'mac_os': size0, size1 = 22, 16
+			  
 		if self.fontname == None:
-			self.textfont = tkinter.font.Font(family='TkDefaulFont', size=12, name='textfont')
-			self.menufont = tkinter.font.Font(family='TkDefaulFont', size=10, name='menufont')
+			self.textfont = tkinter.font.Font(family='TkDefaulFont', size=size0, name='textfont')
+			self.menufont = tkinter.font.Font(family='TkDefaulFont', size=size1, name='menufont')
 		
 		else:
-			self.textfont = tkinter.font.Font(family=self.fontname, size=12, name='textfont')
-			self.menufont = tkinter.font.Font(family=self.fontname, size=10, name='menufont')
+			self.textfont = tkinter.font.Font(family=self.fontname, size=size0, name='textfont')
+			self.menufont = tkinter.font.Font(family=self.fontname, size=size1, name='menufont')
 		
 		
 		if ICONPATH:
@@ -339,17 +345,30 @@ class Browser(tkinter.Toplevel):
 		self.h.ignore_images = True
 		
 		self.bind("<Control-s>",		self.color_choose)
-		self.bind("<Alt-i>",			self.edit_ignored_lines)
 		self.bind("<Control-p>",		self.font_choose)
 		self.bind("<Control-W>",		self.save_config)
-		self.bind("<Escape>",			lambda e: self.iconify())
+		
 		self.bind("<Return>",			lambda a: self.make_page())
 		self.bind("<Left>",				lambda event: self.back_hist(event))
 		self.bind("<Control-comma>",	self.decrease_tabstop_width)
 		self.bind("<Control-period>",	self.increase_tabstop_width)
 		self.bind("<Control-plus>",		self.increase_scrollbar_width)
 		self.bind("<Control-minus>",	self.decrease_scrollbar_width)
-		self.bind("<Button-3>",			lambda event: self.raise_popup(event))
+		self.bind("<Button-%i>" % self.right_mousebutton_num, lambda event: self.raise_popup(event))
+		
+		
+		shortcut = "<Alt-i>"
+		self.f = self.iconify
+		
+		if self.os_type == 'mac_os':
+			shortcut = "<idotless>"
+			self.f = self.rebind
+		
+		self.bind( shortcut, self.edit_ignored_lines)
+		self.bind("<Escape>", lambda e: self.f())
+		
+		
+		
 		
 		self.popup_whohasfocus = None
 		self.popup = tkinter.Menu(self, font=self.menufont, tearoff=0)
@@ -958,7 +977,7 @@ so copying a block of lines ignores all those lines also separately.'''
 		self.wipe()
 		
 		self.bind("<Return>", lambda a: self.make_page())
-		self.bind("<Escape>", lambda e: self.iconify())
+		self.bind("<Escape>", lambda e: self.f())
 		self.bind("<Left>", lambda event: self.back_hist(event))
 		
 		self.btn_open.config(text='Open', command=self.make_titlepage)
@@ -1024,7 +1043,7 @@ so copying a block of lines ignores all those lines also separately.'''
 
 				
 	def stop_help(self, event=None):
-		self.bind("<Escape>", lambda e: self.iconify())
+		self.bind("<Escape>", lambda e: self.f())
 		self.entry.config(state='normal')
 		self.back_hist(flag_help=True)
 		
@@ -1073,12 +1092,12 @@ so copying a block of lines ignores all those lines also separately.'''
 
 	def enter_text2(self, event):
 		self.text2.config(cursor="hand2")
-		self.bind("<Button-3>", lambda e: self.rebind())
+		self.bind("<Button-%i>" % self.right_mousebutton_num, lambda e: self.rebind())
 
 
 	def leave_text2(self, event):
 		self.text2.config(cursor="")
-		self.bind("<Button-3>", lambda event: self.raise_popup(event))
+		self.bind("<Button-%i>" % self.right_mousebutton_num, lambda event: self.raise_popup(event))
 	
 
 	def wipe(self):
@@ -1217,7 +1236,7 @@ so copying a block of lines ignores all those lines also separately.'''
 				self.text2.tag_bind(tagname, "<ButtonRelease-1>",
 					lambda event: self.lclick(event))
 					
-				self.text2.tag_bind(tagname, "<ButtonRelease-3>",
+				self.text2.tag_bind(tagname, "<ButtonRelease-%i>" % self.right_mousebutton_num,
 					lambda event: self.rclick(event))
 				
 				self.text2.tag_bind(tagname, "<Enter>",

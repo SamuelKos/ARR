@@ -1,8 +1,8 @@
 # ARR
-A RSS-Reader with GUI. Tested to work with Debian Bullseye.
+A RSS-Reader with GUI. Tested to work with Debian 12, Windows 10 and 11 and macOS 12.
 
 # Installing
-debian-packages required: python3-tk python3-venv. In windows there is no need to install anything.
+debian-packages required: python3-tk python3-venv. In windows and macOS there is no need to install anything.
 
 ```console
 foo@bar:~$ sudo apt install python3-tk python3-venv
@@ -13,7 +13,7 @@ Then clone this repo and:
 ```console
 foo@bar:~$ git clone https://github.com/SamuelKos/ARR
 foo@bar:~$ cd ARR
-In Linux:
+In Linux and macOS:
 foo@bar:~/ARR$ ./make
 In Windows:
 > py win_install_rss.py
