@@ -15,7 +15,7 @@ class Parser:
 	def __init__(self):
 		self.title_of_feed = None
 		self.data = {}
-		self.tags = ['title', 'link']# 'media:content', 'description']
+		self.tags = ['title', 'link']
 		self.user_agent = 'https://github.com/SamuelKos/ARR'
 		self.rss_types = {
 			'Atom':			'<entry>',
@@ -40,20 +40,20 @@ class Parser:
 		# Trying to apply some specs:
 		
 		if self.rss_types['Feedburner'] in data_xml:
-			ctag = 'entry'
-			patt_for_feedtitle = '<feed.*?<title.*?>(?:<\\!\\[CDATA\[)?(.*?)(?:\\]\\]>)?</title>'
-			patt_for_link = '''<entry>.*?</content>.*?<link.*?type=['"]text/html['"].*? href\\s*=.*?(h.*?)['"].*?/>.*?</entry>'''
+			# Containertag = 'entry'
+			patt_for_feedtitle = r'<feed.*?<title.*?>(?:<\!\[CDATA\[)?(.*?)(?:\]\]>)?</title>'
+			patt_for_link = r'''<entry>.*?</content>.*?<link.*?type=['"]text/html['"].*? href\s*=.*?(h.*?)['"].*?/>.*?</entry>'''
 		
 		elif self.rss_types['RSS'] in data_xml:
-			ctag = 'item'
-			patt_for_feedtitle = '<channel>.*?<title.*?>(?:<\\!\\[CDATA\[)?(.*?)(?:\\]\\]>)?</title>'
-			patt_for_link = '<item>.*?<link.*?>(?:<\\!\\[CDATA\[)?(.*?)(?:\\]\\]>)?</link>.*?</item>'
+			# Containertag = 'item'
+			patt_for_feedtitle = r'<channel>.*?<title.*?>(?:<\!\[CDATA\[)?(.*?)(?:\]\]>)?</title>'
+			patt_for_link = r'<item>.*?<link.*?>(?:<\!\[CDATA\[)?(.*?)(?:\]\]>)?</link>.*?</item>'
 			
 		
 		elif self.rss_types['Atom'] in data_xml:
-			ctag = 'entry'
-			patt_for_feedtitle = '<feed.*?<title.*?>(?:<\\!\\[CDATA\[)?(.*?)(?:\\]\\]>)?</title>'
-			patt_for_link = '''<entry>.*?<link.*?href\\s*=.*?(h.*?)['"]*/>.*?</entry>'''
+			# Containertag = 'entry'
+			patt_for_feedtitle = r'<feed.*?<title.*?>(?:<\!\[CDATA\[)?(.*?)(?:\]\]>)?</title>'
+			patt_for_link = r'''<entry>.*?<link.*?href\s*=.*?(h.*?)['"]*/>.*?</entry>'''
 			
 		else:
 			err_msg =	\
@@ -69,26 +69,21 @@ Parsing error: unknown RSS-format
 		self.title_of_feed = m.group(1)
 		
 		
-		# Parse tags:
-		for tag in self.tags:
-			self.data[tag] = list()
-			
-##			if tag == 'media:content':
-##				# grab first link found which hopefully is an image:
-##				pattern = f"<{ctag}>.*?<{tag}.*?url.*?=.*?\"(.*?)\""
-			
-			if tag == 'link':
-				pattern = patt_for_link
+		
+		if self.rss_types['RSS'] in data_xml:
+		
+			patt_for_titles = r"<item>.*?<title.*?>(?:<\!\[CDATA\[)?(.*?)(?:\]\]>)?</title>.*?</item>"
+		
+		else:
+			patt_for_titles = r"<entry>.*?<title.*?>(?:<\!\[CDATA\[)?(.*?)(?:\]\]>)?</title>.*?</entry>"
 				
-			elif tag == 'title':
-				pattern = f"<{ctag}>.*?<{tag}.*?>(?:<\\!\\[CDATA\[)?(.*?)(?:\\]\\]>)?</{tag}>.*?</{ctag}>"
-				
-			else:
-				pass
 			
-			self.data[tag] = re.findall(pattern, data_xml, flags=re.DOTALL)
-
-				
+		self.data['link'] = list()
+		self.data['title'] = list()
+		self.data['link'] = re.findall(patt_for_link, data_xml, flags=re.DOTALL)
+		self.data['title'] = re.findall(patt_for_titles, data_xml, flags=re.DOTALL)
+		
+		
 		return (self.title_of_feed, self.data['title'], self.data['link'])
 		
 		
