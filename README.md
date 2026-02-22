@@ -1,6 +1,6 @@
 # ARR
 A RSS-Reader with GUI. Tested to work with Debian 12, Windows 10 and 11 and macOS 12.
-asd
+
 
 # Installing
 Windows: there is no need to install anything besides Python and Git.
